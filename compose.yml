@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  hello:
+    build:
+      context: .sample
+      dockerfile: Dockerfile
+    image: sample/go:lambda
+    container_name: hello
+    entrypoint: /usr/local/bin/aws-lambda-rie
+    command: ./main
+    networks:
+      - api-gateway-network
+  
+  proxy:
+    image: nginx:alpine
+    container_name: proxy
+    ports:
+      - "4321:80"
+    volumes:
+      - ./config:/etc/nginx/
+    networks:
+      - api-gateway-network
+    depends_on:
+      - hello
+  
+networks:
+  api-gateway-network:
+    name: mocky-gateway-vpc
